@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leads Center</title>
+  <meta name="description" content="Leads Center عربي بسيط لحفظ وتصدير بيانات العملاء اليومية.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Outfit:wght@700;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo">
+          <img src="logo.png" alt="Hachiko">
+        </span>
+        <span>
+          <strong>Hachiko Friends</strong>
+          <small>Leads Center</small>
+        </span>
+      </div>
+      <button class="button button-light button-danger" type="button" data-new-day>يوم جديد</button>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="kicker">متابعة يومية بسيطة للعملاء</p>
+        <h1 id="page-title">Leads Center</h1>
+      </div>
+
+      <div class="day-card">
+        <label class="field">
+          <span>اسم المسوق</span>
+          <input id="marketerName" type="text" autocomplete="name" placeholder="اكتب اسم المسوق">
+        </label>
+        <label class="field">
+          <span>تاريخ اليوم</span>
+          <input id="workDate" type="date">
+        </label>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="إجراءات">
+      <button class="button button-primary" type="button" data-add-lead>Add lead</button>
+      <div class="stats" aria-live="polite">
+        <article>
+          <span>إجمالي الليدز</span>
+          <strong data-total>0</strong>
+        </article>
+        <article>
+          <span>متوسط الاهتمام</span>
+          <strong data-average>0</strong>
+        </article>
+        <article>
+          <span>تم فقدانه</span>
+          <strong data-lost-count>0</strong>
+        </article>
+      </div>
+    </section>
+
+    <form class="lead-form is-hidden" data-form>
+      <div class="section-title">
+        <h2>إضافة ليد جديد</h2>
+        <button class="icon-button" type="button" data-close-form aria-label="إغلاق">×</button>
+      </div>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>اسم العميل</span>
+          <input name="clientName" type="text" required placeholder="مثال: أحمد محمد">
+        </label>
+
+        <label class="field">
+          <span>المكان</span>
+          <input name="location" type="text" required placeholder="مثال: التجمع الخامس">
+        </label>
+
+        <label class="check-tile">
+          <input name="newConversation" type="checkbox">
+          <span>محادثة جديدة</span>
+        </label>
+
+        <label class="check-tile">
+          <input name="previousPurchase" type="checkbox">
+          <span>سبق الشراء من قبل</span>
+        </label>
+
+        <div class="conditional-block">
+          <label class="check-tile">
+            <input name="hasFeedback" type="checkbox" data-feedback-toggle>
+            <span>فيدباك</span>
+          </label>
+          <div class="inline-options is-hidden" data-feedback-options>
+            <label><input name="feedbackType" type="radio" value="إيجابي"> إيجابي</label>
+            <label><input name="feedbackType" type="radio" value="سلبي"> سلبي</label>
+          </div>
+        </div>
+
+        <label class="field interest-field">
+          <span>مستوى الاهتمام</span>
+          <b data-interest-output>5</b>
+          <input name="interestLevel" type="range" min="1" max="10" value="5">
+        </label>
+
+        <label class="field wide">
+          <span>طلبات خاصة</span>
+          <textarea name="specialRequests" rows="4" placeholder="اكتب أي طلبات خاصة هنا"></textarea>
+        </label>
+
+        <div class="conditional-block wide">
+          <label class="check-tile lost">
+            <input name="isLost" type="checkbox" data-lost-toggle>
+            <span>تم فقدانه</span>
+          </label>
+          <label class="field lost-reason is-hidden" data-lost-reason>
+            <span>الأسباب</span>
+            <textarea name="lostReason" rows="3" placeholder="اكتب سبب فقدان الليد"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="button button-primary" type="submit">حفظ الليد</button>
+        <button class="button button-light" type="reset">تفريغ النموذج</button>
+      </div>
+    </form>
+
+    <section class="leads-panel" aria-labelledby="leads-title">
+      <div class="section-title">
+        <h2 id="leads-title">الليدز المسجلة</h2>
+        <button class="button button-light button-export" type="button" data-export>تحميل Excel</button>
+      </div>
+
+      <div class="empty" data-empty>لا توجد ليدز حتى الآن</div>
+      <div class="lead-list" data-list></div>
+    </section>
+  </main>
+
+  <template id="lead-template">
+    <article class="lead-card">
+      <div class="lead-head">
+        <div>
+          <strong data-name></strong>
+          <span data-location></span>
+        </div>
+        <button class="icon-button" type="button" data-delete aria-label="حذف">×</button>
+      </div>
+      <dl>
+        <div><dt>محادثة جديدة</dt><dd data-new-conversation></dd></div>
+        <div><dt>سبق الشراء</dt><dd data-previous-purchase></dd></div>
+        <div><dt>فيدباك</dt><dd data-feedback></dd></div>
+        <div><dt>الاهتمام</dt><dd data-interest></dd></div>
+        <div><dt>تم فقدانه</dt><dd data-lost></dd></div>
+      </dl>
+      <p data-requests></p>
+      <p data-reason></p>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
