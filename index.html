@@ -63,7 +63,7 @@
 
     <form class="lead-form is-hidden" data-form>
       <div class="section-title">
-        <h2>إضافة ليد جديد</h2>
+        <h2 data-form-title>إضافة ليد جديد</h2>
         <button class="icon-button" type="button" data-close-form aria-label="إغلاق">×</button>
       </div>
 
@@ -123,8 +123,8 @@
       </div>
 
       <div class="form-actions">
-        <button class="button button-primary" type="submit">حفظ الليد</button>
-        <button class="button button-light" type="reset">تفريغ النموذج</button>
+        <button class="button button-primary" type="submit" data-submit-lead>حفظ الليد</button>
+        <button class="button button-light" type="reset" data-reset-lead>تفريغ النموذج</button>
       </div>
     </form>
 
@@ -146,7 +146,10 @@
           <strong data-name></strong>
           <span data-location></span>
         </div>
-        <button class="icon-button" type="button" data-delete aria-label="حذف">×</button>
+        <div class="lead-actions">
+          <button class="button button-light button-small" type="button" data-edit>تعديل</button>
+          <button class="icon-button" type="button" data-delete aria-label="حذف">×</button>
+        </div>
       </div>
       <dl>
         <div><dt>محادثة جديدة</dt><dd data-new-conversation></dd></div>
