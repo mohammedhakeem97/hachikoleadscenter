@@ -12,6 +12,9 @@
   const list = document.querySelector("[data-list]");
   const empty = document.querySelector("[data-empty]");
   const template = document.querySelector("#lead-template");
+  const formTitle = document.querySelector("[data-form-title]");
+  const submitLeadButton = document.querySelector("[data-submit-lead]");
+  const resetLeadButton = document.querySelector("[data-reset-lead]");
   const feedbackToggle = document.querySelector("[data-feedback-toggle]");
   const feedbackOptions = document.querySelector("[data-feedback-options]");
   const lostToggle = document.querySelector("[data-lost-toggle]");
@@ -25,6 +28,7 @@
   };
 
   let state = loadState();
+  let editingLeadId = null;
 
   function loadState() {
     try {
@@ -75,22 +79,26 @@
     }
   }
 
+  function setFormMode(isEditing) {
+    formTitle.textContent = isEditing ? "تعديل الليد" : "إضافة ليد جديد";
+    submitLeadButton.textContent = isEditing ? "حفظ التعديل" : "حفظ الليد";
+    resetLeadButton.textContent = isEditing ? "إلغاء التعديل" : "تفريغ النموذج";
+  }
+
   function clearLeadForm() {
+    editingLeadId = null;
+    setFormMode(false);
     form.reset();
     interestOutput.textContent = interestInput.value;
     syncConditionalFields();
   }
 
-  function collectLead() {
+  function readLeadForm() {
     const data = new FormData(form);
     const hasFeedback = form.elements.hasFeedback.checked;
     const isLost = form.elements.isLost.checked;
 
     return {
-      id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-      marketerName: state.marketerName,
-      workDate: state.workDate,
-      createdAt: new Date().toLocaleString("ar-EG"),
       clientName: data.get("clientName").trim(),
       location: data.get("location").trim(),
       newConversation: form.elements.newConversation.checked,
@@ -102,6 +110,51 @@
       isLost,
       lostReason: isLost ? data.get("lostReason").trim() : ""
     };
+  }
+
+  function collectLead() {
+    return {
+      id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+      marketerName: state.marketerName,
+      workDate: state.workDate,
+      createdAt: new Date().toLocaleString("ar-EG"),
+      ...readLeadForm()
+    };
+  }
+
+  function collectLeadEdit(lead) {
+    return {
+      ...lead,
+      marketerName: state.marketerName,
+      workDate: state.workDate,
+      ...readLeadForm()
+    };
+  }
+
+  function populateLeadForm(lead) {
+    form.elements.clientName.value = lead.clientName || "";
+    form.elements.location.value = lead.location || "";
+    form.elements.newConversation.checked = Boolean(lead.newConversation);
+    form.elements.previousPurchase.checked = Boolean(lead.previousPurchase);
+    form.elements.hasFeedback.checked = Boolean(lead.hasFeedback);
+    form.querySelectorAll("[name='feedbackType']").forEach((input) => {
+      input.checked = input.value === lead.feedbackType;
+    });
+    form.elements.interestLevel.value = lead.interestLevel || 5;
+    interestOutput.textContent = form.elements.interestLevel.value;
+    form.elements.specialRequests.value = lead.specialRequests || "";
+    form.elements.isLost.checked = Boolean(lead.isLost);
+    form.elements.lostReason.value = lead.lostReason || "";
+    syncConditionalFields();
+  }
+
+  function editLead(lead) {
+    editingLeadId = lead.id;
+    setFormMode(true);
+    populateLeadForm(lead);
+    form.classList.remove("is-hidden");
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    form.elements.clientName.focus();
   }
 
   function renderStats() {
@@ -136,8 +189,18 @@
       reason.textContent = lead.lostReason ? `سبب الفقدان: ${lead.lostReason}` : "";
       reason.classList.toggle("is-hidden", !lead.lostReason);
 
+      card.querySelector("[data-edit]").addEventListener("click", () => {
+        editLead(lead);
+      });
+
       card.querySelector("[data-delete]").addEventListener("click", () => {
+        if (!confirm("هل أنت متأكد من حذف هذا الليد؟")) return;
+
         state.leads = state.leads.filter((item) => item.id !== lead.id);
+        if (editingLeadId === lead.id) {
+          clearLeadForm();
+          form.classList.add("is-hidden");
+        }
         saveState();
         render();
       });
@@ -237,11 +300,13 @@
   });
 
   addLeadButton.addEventListener("click", () => {
+    clearLeadForm();
     form.classList.remove("is-hidden");
     form.elements.clientName.focus();
   });
 
   closeFormButton.addEventListener("click", () => {
+    clearLeadForm();
     form.classList.add("is-hidden");
   });
 
@@ -254,6 +319,8 @@
 
   form.addEventListener("reset", () => {
     window.setTimeout(() => {
+      editingLeadId = null;
+      setFormMode(false);
       interestOutput.textContent = interestInput.value;
       syncConditionalFields();
     }, 0);
@@ -275,7 +342,14 @@
       return;
     }
 
-    state.leads.unshift(collectLead());
+    if (editingLeadId) {
+      state.leads = state.leads.map((lead) => {
+        return lead.id === editingLeadId ? collectLeadEdit(lead) : lead;
+      });
+    } else {
+      state.leads.unshift(collectLead());
+    }
+
     saveState();
     clearLeadForm();
     render();
