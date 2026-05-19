@@ -217,6 +217,12 @@ textarea:focus {
   padding: 0 14px;
 }
 
+.button-small {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.86rem;
+}
+
 .button-primary {
   border: 0;
   color: #06231f;
@@ -290,7 +296,8 @@ textarea:focus {
 
 .section-title,
 .form-actions,
-.lead-head {
+.lead-head,
+.lead-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -408,6 +415,12 @@ input[type="range"] {
 .lead-head {
   align-items: flex-start;
   margin-bottom: 10px;
+}
+
+.lead-actions {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .lead-head strong,
